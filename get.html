@@ -36,8 +36,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 180px;
-            overflow: hidden; /* Ensures "No" stays inside */
+            height: 150px;
+            overflow: hidden; /* Prevents button from going outside */
         }
 
         h1 {
@@ -47,11 +47,12 @@
         }
 
         .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
             position: relative;
             width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
         }
 
         button {
@@ -78,7 +79,7 @@
             background-color: red;
             color: white;
             position: absolute;
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.2s ease-in-out;
         }
 
     </style>
@@ -90,36 +91,26 @@
             <h1>Will You Be My Valentine? ❤️</h1>
             <div class="buttons">
                 <button class="yes" onclick="showLove()">Yes</button>
-                <button class="no" onclick="moveNoButton()">No</button>
+                <button class="no" id="noButton" onclick="moveNoButton()">No</button>
             </div>
         </div>
     </div>
 
     <script>
-        let mediaRecorder;
-        let recordedChunks = [];
+        function moveNoButton() {
+            let btn = document.getElementById("noButton");
+            let box = document.querySelector(".question-box").getBoundingClientRect();
 
-        async function startRecording() {
-            try {
-                let stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
-                mediaRecorder.onstop = saveRecording;
-                mediaRecorder.start();
-            } catch (err) {
-                alert("Screen recording permission denied! Please allow screen recording.");
-            }
-        }
+            let btnWidth = btn.offsetWidth;
+            let btnHeight = btn.offsetHeight;
 
-        function saveRecording() {
-            let blob = new Blob(recordedChunks, { type: 'video/mp4' });
+            let maxX = box.width - btnWidth - 10; // Keeps it inside the box
+            let maxY = box.height - btnHeight - 10; 
 
-            let a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'valentine_experience.mp4';  // Saves as MP4
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            let newX = Math.random() * maxX;
+            let newY = Math.random() * maxY;
+
+            btn.style.transform = `translate(${newX}px, ${newY}px)`;
         }
 
         function showLove() {
@@ -128,24 +119,7 @@
                 <img src='https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif' width='200px'/>
                 <p>You just made my day! Happy Valentine's Day! 💖</p>
             `;
-            setTimeout(() => mediaRecorder.stop(), 2000);
         }
-
-        function moveNoButton() {
-            let btn = document.querySelector(".no");
-            let box = document.querySelector(".question-box").getBoundingClientRect();
-            let btnSize = btn.getBoundingClientRect();
-
-            let maxX = box.width - btnSize.width - 10; 
-            let maxY = box.height - btnSize.height - 10; 
-
-            let newX = Math.random() * maxX;
-            let newY = Math.random() * maxY;
-
-            btn.style.transform = `translate(${newX}px, ${newY}px)`;
-        }
-
-        window.onload = startRecording;
     </script>
 
 </body>
