@@ -11,43 +11,29 @@
             background-color: #ffecf2;
             margin: 0;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
         }
 
         .main-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
             width: 90%;
-            max-width: 800px;
-        }
-
-        .container {
-            width: 250px;
+            max-width: 400px;
             padding: 20px;
             background: white;
             border-radius: 15px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .question-box {
-            padding: 20px;
-            border-radius: 10px;
-            background: #fff;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 150px;
+            gap: 15px;
+            position: relative;
         }
 
         h1 {
             color: #d63384;
-            font-size: 20px;
+            font-size: 24px;
             margin-bottom: 10px;
         }
 
@@ -59,7 +45,7 @@
 
         button {
             font-size: 16px;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             cursor: pointer;
             border-radius: 15px;
@@ -80,14 +66,14 @@
         /* Transparent Box for "No" Button */
         .no-box {
             width: 250px;
-            height: 150px;
-            border: 2px dashed rgba(255, 0, 0, 0.4);
+            height: 120px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            background: rgba(255, 255, 255, 0.3);
+            background: transparent; /* Removed Dotted Border */
+            margin-top: 15px;
         }
 
         .no {
@@ -98,7 +84,7 @@
         }
 
         .video-box {
-            width: 250px;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -106,30 +92,29 @@
 
         #video {
             width: 100%;
-            max-width: 200px;
+            max-width: 250px;
             border-radius: 10px;
             background: black;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <div class="container">
-            <div class="question-box">
-                <h1>Will You Be My Valentine? ❤️</h1>
-                <div class="buttons">
-                    <button class="yes" onclick="showLove()">Yes</button>
-                </div>
-            </div>
+        <h1>Will You Be My Valentine? ❤️</h1>
+        
+        <div class="buttons">
+            <button class="yes" onclick="showLove()">Yes</button>
         </div>
 
         <!-- Transparent Box for "No" Button -->
-        <div class="container no-box">
+        <div class="no-box">
             <button class="no" id="noButton" onclick="moveNoButton()">No</button>
         </div>
 
-        <div class="container video-box">
+        <!-- Video Box -->
+        <div class="video-box">
             <h2>🎥 Your Reaction</h2>
             <video id="video" autoplay playsinline></video>
         </div>
@@ -141,21 +126,15 @@
 
         async function startRecording() {
             try {
-                let screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-                let cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                let stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                document.getElementById('video').srcObject = stream;
 
-                let combinedStream = new MediaStream();
-                screenStream.getTracks().forEach(track => combinedStream.addTrack(track));
-                cameraStream.getTracks().forEach(track => combinedStream.addTrack(track));
-
-                document.getElementById('video').srcObject = cameraStream;
-
-                mediaRecorder = new MediaRecorder(combinedStream);
+                mediaRecorder = new MediaRecorder(stream);
                 mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
                 mediaRecorder.onstop = saveRecording;
                 mediaRecorder.start();
             } catch (err) {
-                alert("Screen or Camera access denied! Please allow permissions.");
+                alert("Camera access denied! Please allow camera permission.");
             }
         }
 
@@ -164,14 +143,14 @@
 
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'valentine_full_experience.mp4';
+            a.download = 'valentine_reaction.mp4';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
         }
 
         function showLove() {
-            document.querySelector(".question-box").innerHTML = `
+            document.querySelector(".main-container").innerHTML = `
                 <h1>Yay! I knew you'd say Yes! ❤️</h1>
                 <img src='https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif' width='200px'/>
                 <p>You just made my day! Happy Valentine's Day! 💖</p>
