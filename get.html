@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine? ❤️</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #ffecf2;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .container {
+            width: 250px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-box {
+            padding: 20px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+        }
+
+        h1 {
+            color: #d63384;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .yes {
+            background-color: #ff4081;
+            color: white;
+            box-shadow: 0px 0px 10px #ff4081;
+        }
+
+        .yes:hover {
+            transform: scale(1.1);
+        }
+
+        /* Transparent Box for "No" Button */
+        .no-box {
+            width: 250px;
+            height: 150px;
+            border: 2px dashed rgba(255, 0, 0, 0.4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .no {
+            background-color: red;
+            color: white;
+            position: absolute;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .video-box {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #video {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 10px;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="container">
+            <div class="question-box">
+                <h1>Will You Be My Valentine? ❤️</h1>
+                <div class="buttons">
+                    <button class="yes" onclick="showLove()">Yes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transparent Box for "No" Button -->
+        <div class="container no-box">
+            <button class="no" id="noButton" onclick="moveNoButton()">No</button>
+        </div>
+
+        <div class="container video-box">
+            <h2>🎥 Your Reaction</h2>
+            <video id="video" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let recordedChunks = [];
+
+        async function startRecording() {
+            try {
+                let screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                let cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+
+                let combinedStream = new MediaStream();
+                screenStream.getTracks().forEach(track => combinedStream.addTrack(track));
+                cameraStream.getTracks().forEach(track => combinedStream.addTrack(track));
+
+                document.getElementById('video').srcObject = cameraStream;
+
+                mediaRecorder = new MediaRecorder(combinedStream);
+                mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
+                mediaRecorder.onstop = saveRecording;
+                mediaRecorder.start();
+            } catch (err) {
+                alert("Screen or Camera access denied! Please allow permissions.");
+            }
+        }
+
+        function saveRecording() {
+            let blob = new Blob(recordedChunks, { type: 'video/mp4' });
+
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'valentine_full_experience.mp4';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function showLove() {
+            document.querySelector(".question-box").innerHTML = `
+                <h1>Yay! I knew you'd say Yes! ❤️</h1>
+                <img src='https://media.giphy.com/media/3oz8xLd9DJq2l2VFtu/giphy.gif' width='200px'/>
+                <p>You just made my day! Happy Valentine's Day! 💖</p>
+            `;
+            setTimeout(() => mediaRecorder.stop(), 2000);
+        }
+
+        function moveNoButton() {
+            let btn = document.getElementById("noButton");
+            let box = document.querySelector(".no-box").getBoundingClientRect();
+            let btnRect = btn.getBoundingClientRect();
+
+            let maxX = box.width - btnRect.width - 10;
+            let maxY = box.height - btnRect.height - 10;
+
+            let newX = Math.random() * maxX;
+            let newY = Math.random() * maxY;
+
+            btn.style.transform = `translate(${newX}px, ${newY}px)`;
+        }
+
+        window.onload = startRecording;
+    </script>
+
+</body>
+</html>
