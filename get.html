@@ -37,7 +37,7 @@
             flex-direction: column;
             align-items: center;
             height: 180px;
-            overflow: hidden;
+            overflow: hidden; /* Ensures "No" stays inside */
         }
 
         h1 {
@@ -78,22 +78,9 @@
             background-color: red;
             color: white;
             position: absolute;
-            transition: 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out;
         }
 
-        .video-box {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #video {
-            width: 100%;
-            max-width: 300px;
-            border-radius: 10px;
-            background: black;
-        }
     </style>
 </head>
 <body>
@@ -108,26 +95,19 @@
         </div>
     </div>
 
-    <div class="container video-box">
-        <h2>🎥 Your Reaction</h2>
-        <video id="video" autoplay playsinline></video>
-    </div>
-
     <script>
         let mediaRecorder;
         let recordedChunks = [];
 
         async function startRecording() {
             try {
-                let stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-                document.getElementById('video').srcObject = stream;
-
-                mediaRecorder = new MediaRecorder(stream, { mimeType: "video/mp4" });
+                let stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                mediaRecorder = new MediaRecorder(stream);
                 mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
                 mediaRecorder.onstop = saveRecording;
                 mediaRecorder.start();
             } catch (err) {
-                alert("Camera access denied! Please allow camera permission.");
+                alert("Screen recording permission denied! Please allow screen recording.");
             }
         }
 
@@ -136,7 +116,7 @@
 
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'valentine_reaction.mp4';  // Changed to .mp4
+            a.download = 'valentine_experience.mp4';  // Saves as MP4
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -156,8 +136,8 @@
             let box = document.querySelector(".question-box").getBoundingClientRect();
             let btnSize = btn.getBoundingClientRect();
 
-            let maxX = box.width - btnSize.width - 20;
-            let maxY = box.height - btnSize.height - 20;
+            let maxX = box.width - btnSize.width - 10; 
+            let maxY = box.height - btnSize.height - 10; 
 
             let newX = Math.random() * maxX;
             let newY = Math.random() * maxY;
